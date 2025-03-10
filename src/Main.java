@@ -1,211 +1,173 @@
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 
-class TicTacToe
-{
-   static char[][] board;
+class TicTacToe {
+    static char[][] board;
 
-    public TicTacToe()
-    {
+    public TicTacToe() {
         board = new char[3][3];
         initBoard();
     }
 
-   static void initBoard()
-    {
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
-                board[i][j] = ' ';
-            }
+    static void initBoard() {
+        for (char[] row : board) {
+            Arrays.fill(row, ' ');
         }
     }
 
-   static void dboard()
-    {
-           System.out.println("-------------");
-            for(int i=0; i<board.length; i++)
-            {
-                System.out.print("| ");
-                for(int j=0; j<board[i].length; j++)
-                {
-                   System.out.print(board[i][j] + " | ");
-
-                }
-                System.out.println();
-                System.out.println("-------------");
+    static void displayBoard() {
+        System.out.println("-------------");
+        for (char[] row : board) {
+            System.out.print("| ");
+            for (char cell : row) {
+                System.out.print(cell + " | ");
             }
+            System.out.println();
+            System.out.println("-------------");
+        }
     }
 
-   static void placeXO(int r,int c,char m)
-    {
-        if(r >= 0 && r <= 2 && c >= 0 && c <= 2) {
+    static void placeXO(int r, int c, char m) {
+        if (r >= 0 && r < 3 && c >= 0 && c < 3) {
             board[r][c] = m;
-        }
-        else{
-            System.out.println("Invalid");
+        } else {
+            System.out.println("Invalid move");
         }
     }
 
-   static boolean checkcolwin()
-    {
-        for(int j=0; j<=2; j++){
-            if(board[0][j] != ' ' && board[0][j] == board[1][j] && board[1][j] == board[2][j] ){
+    static boolean checkColumnWin() {
+        for (int j = 0; j < 3; j++) {
+            if (board[0][j] != ' ' && board[0][j] == board[1][j] && board[1][j] == board[2][j]) {
                 return true;
             }
         }
         return false;
     }
 
-   static boolean checkrowin()
-    {
-        for(int i=0; i<=2; i++){
-            if(board[i][0] != ' ' && board[i][0] == board[i][1] && board[i][1] == board[i][2] ){
+    static boolean checkRowWin() {
+        for (char[] row : board) {
+            if (row[0] != ' ' && row[0] == row[1] && row[1] == row[2]) {
                 return true;
             }
         }
         return false;
     }
 
-   static boolean checkdiwin()
-    {
-        if(board[0][0] != ' ' &&  board[0][0] == board[1][1] &&  board[1][1] == board[2][2] ||
-                board[0][2] != ' ' &&  board[0][2] == board[1][1] &&  board[1][1] == board[2][0]){
-            return true;
-        }
-        return false;
+    static boolean checkDiagonalWin() {
+        return (board[0][0] != ' ' && board[0][0] == board[1][1] && board[1][1] == board[2][2]) ||
+                (board[0][2] != ' ' && board[0][2] == board[1][1] && board[1][1] == board[2][0]);
     }
 
-    static boolean checkTie()
-    {
-        for(int i=0;i<=2;i++)
-        {
-            for(int j=0;j<=2;j++)
-            {
-                if(board[i][j] == ' ')
-                {
-                   return false;
+    static boolean checkTie() {
+        for (char[] row : board) {
+            for (char cell : row) {
+                if (cell == ' ') {
+                    return false;
                 }
             }
         }
         return true;
     }
-
-
 }
 
-abstract class Player
-{
-    String n;
-    char m;
-    abstract void makeMove();
-    boolean isValidmove(int r,int c)
-    {
-        if(r >= 0 && r <= 2 && c >= 0 && c <= 2)
-        {
-            if(TicTacToe.board[r][c] == ' ')
-            {
-                return true;
-            }
-        }
-        return false;
+abstract class Player {
+    String name;
+    char mark;
+abstract void makeMove();
+    boolean isValidMove(int r, int c) {
+        return r >= 0 && r < 3 && c >= 0 && c < 3 && TicTacToe.board[r][c] == ' ';
     }
 }
 
-class HumanPlayer extends Player
-{
-    Scanner scan = new Scanner(System.in);
-    HumanPlayer(String n, char m)
-    {
-        this.n = n;
-        this.m = m;
+class HumanPlayer extends Player {
+    HumanPlayer(String name, char mark) {
+        this.name = name;
+        this.mark = mark;
     }
-    void makeMove()
-    {
+
+    void makeMove() {
         Scanner scan = new Scanner(System.in);
-        int r;
-        int c;
-        do{
-
-            System.out.println("Enter the row and col");
+        int r, c;
+        do {
+            System.out.println(name + ", enter the row and column (0-2):");
             r = scan.nextInt();
             c = scan.nextInt();
-        }while(!isValidmove(r,c));
-        TicTacToe.placeXO(r,c,m);
-
+        } while (!isValidMove(r, c)); // ✅ FIXED: No more inversion
+        TicTacToe.placeXO(r, c, mark);
     }
 }
 
-class AIPlayer extends Player
-{
-    AIPlayer(String n, char m) {
-        this.n = n;
-        this.m = m;
+class AIPlayer extends Player {
+    AIPlayer(String name, char mark) {
+        this.name = name;
+        this.mark = mark;
     }
 
-    void makeMove()
-    {
-        Scanner scan = new Scanner(System.in);
-        int r;
-        int c;
-        do
-        {
-            Random rs = new Random();
+    void makeMove() {
+        int r, c;
+        Random rs = new Random();
+        do {
             r = rs.nextInt(3);
             c = rs.nextInt(3);
-        } while (!isValidmove(r, c));
-        System.out.println(n + " (AI) placed at: " + r + ", " + c);
-        TicTacToe.placeXO(r, c, m);
+        } while (!isValidMove(r, c)); // ✅ FIXED: No more inversion
+        System.out.println("AI placed at: " + r + ", " + c);
+        TicTacToe.placeXO(r, c, mark);
     }
 }
+
 public class Main {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        Scanner scan = new Scanner(System.in);
 
-        System.out.println("Choose Game Mode:");
+        System.out.print("Enter Player 1's name: ");
+        String player1Name = scan.nextLine();
+
+        System.out.println("Choose Game Mode: ");
         System.out.println("1 - Single Player (vs AI)");
         System.out.println("2 - Multiplayer (vs another player)");
-        int mode = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        int mode = scan.nextInt();
+        scan.nextLine(); // Consume newline
 
-        TicTacToe t = new TicTacToe();
-        Player p1, p2;
-
-        System.out.print("Enter Player 1 name: ");
-        String player1Name = scanner.nextLine();
-        p1 = new HumanPlayer(player1Name, 'X');
+        Player p1 = new HumanPlayer(player1Name, 'X');
+        Player p2;
 
         if (mode == 1) {
-            p2 = new AIPlayer("Computer", 'O'); // AI as second player
+            p2 = new AIPlayer("Computer", 'O');
         } else {
-            System.out.print("Enter Player 2 name: ");
-            String player2Name = scanner.nextLine();
-            p2 = new HumanPlayer(player2Name, 'O'); // Human as second player
+            System.out.print("Enter Player 2's name: ");
+            String player2Name = scan.nextLine();
+            p2 = new HumanPlayer(player2Name, 'O');
         }
 
-        Player cp = p1; // Current player
+        Player currentPlayer = p1;
 
-        while (true) { // Game loop
-            System.out.println(cp.n + "'s turn (" + cp.m + ")");
-            cp.makeMove();
-            TicTacToe.dboard();
+        while (true) {
+            System.out.println(currentPlayer.name + "'s turn");
+            currentPlayer.makeMove();
+            TicTacToe.displayBoard();
 
-            // Check for win
-            if (TicTacToe.checkcolwin() || TicTacToe.checkrowin() || TicTacToe.checkdiwin()) {
-                System.out.println(cp.n + " has won!");
+            if (TicTacToe.checkColumnWin() || TicTacToe.checkRowWin() || TicTacToe.checkDiagonalWin()) {
+                System.out.println(currentPlayer.name + " has won!");
                 break;
-            }
-            // Check for tie
-            else if (TicTacToe.checkTie()) {
+            } else if (TicTacToe.checkTie()) {
                 System.out.println("Game is a tie!");
                 break;
-            }
-            // Switch players
-            else {
-                cp = (cp == p1) ? p2 : p1;
+            } else {
+                currentPlayer = (currentPlayer == p1) ? p2 : p1;
             }
         }
-
-        scanner.close();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
 
