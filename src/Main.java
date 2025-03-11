@@ -119,16 +119,13 @@ class AIPlayer extends Player {
 public class Main {
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
-
-        System.out.print("Enter Player 1's name: ");
-        String player1Name = scan.nextLine();
-
         System.out.println("Choose Game Mode: ");
         System.out.println("1 - Single Player (vs AI)");
         System.out.println("2 - Multiplayer (vs another player)");
         int mode = scan.nextInt();
         scan.nextLine(); // Consume newline
-
+        System.out.print("Enter Player 1's name: ");
+        String player1Name = scan.nextLine();
         Player p1 = new HumanPlayer(player1Name, 'X');
         Player p2;
 
